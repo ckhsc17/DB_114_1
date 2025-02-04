@@ -1,5 +1,5 @@
 from .Action import Action
-from DB_utils import userid_exist, update_user_info
+from DB_utils import userid_exist, update_user_info, log_modify_user_info
 from utils import list_option
 class ModifyUserInfo(Action):
      
@@ -36,3 +36,4 @@ class ModifyUserInfo(Action):
         update_user_info(userid, item, new_value)
         conn.send(f'\nUpdate successfully! New {item}: {new_value}\n'.encode('utf-8'))
         
+        log_modify_user_info(userid, item, new_value)

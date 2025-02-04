@@ -13,5 +13,5 @@ class JoinEvent(Action):
         
 
         join_study_group(user.get_userid(), event_id, current_time)
-
+        
         conn.send(f'\nJoin study group successfully!\n'.encode('utf-8'))
