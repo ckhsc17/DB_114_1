@@ -2,7 +2,7 @@
 from .Action import Action
 from role.User import User
 from role.Admin import Admin
-from DB_utils import fetch_user
+from DB_utils import fetch_user, log_login
 
 class LogIn(Action):
     def exec(self, conn):
@@ -33,6 +33,8 @@ class LogIn(Action):
         if count == 0:
             conn.send(f'[EXIT]Connection close. Reason: Password incorrect.'.encode('utf-8'))
             return -1
+        
+        log_login(userid)
         
         if isAdmin:
             return Admin(userid, username, pwd, email)

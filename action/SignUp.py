@@ -1,7 +1,7 @@
 
 from .Action import Action
 from role.User import User
-from DB_utils import db_register_user, username_exist
+from DB_utils import db_register_user, username_exist, log_signup
 
 class SignUp(Action):
     def exec(self, conn):
@@ -24,5 +24,7 @@ class SignUp(Action):
         userid = db_register_user(username, pwd, email)
         conn.send(f'----------------------------------------\nSuccessfully create account! Userid = {userid}\n'.encode('utf-8'))
 
+        log_signup(userid)
+        
         return User(userid, username, pwd, email)
 

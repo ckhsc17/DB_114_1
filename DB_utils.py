@@ -22,22 +22,41 @@ def get_mongo_client(uri=MONGO_URI, db_name=DB_NAME):
     return client[db_name]
 
 # 記錄行為的函式
-def log_action(event_type, details):
+def log_action(event_type, details=None, user_id=None):
     mongo = get_mongo_client()
     action = {
         "event_type": event_type,
         "details": details,
+        "user_id": user_id,
         "timestamp": datetime.now()
     }
     mongo.activities.insert_one(action)
     print(f"Logged action: {action}")
     
-# 記錄登入
 def log_login(user_id):
-    mongo = get_mongo_client()
     log_action(
         event_type="login",
-        details={"user_id": user_id}
+        user_id=user_id
+    )
+
+def log_signup(user_id):
+    log_action(
+        event_type="signup",
+        user_id=user_id
+    )
+    
+def log_modify_user_info(user_id, item, new_value):
+    log_action(
+        event_type="modify_user_info",
+        details={"item": item, "new_value": new_value},
+        user_id=user_id
+    )
+    
+def log_join_event(user_id, event_id):
+    log_action(
+        event_type="join_event",
+        details={"event_id": event_id},
+        user_id=user_id
     )
 
 def db_connect():
@@ -220,6 +239,8 @@ def join_study_group(user_id, event_id, join_time):
             """
     cur.execute(query, [user_id, event_id, join_time])
     db.commit()
+    
+    log_join_event(user_id, event_id)
     return
     
 def isInEvent(user_id, event_id):
