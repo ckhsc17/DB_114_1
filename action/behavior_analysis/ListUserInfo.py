@@ -1,4 +1,4 @@
-from .Action import Action
+from ..Action import Action
 from DB_utils import list_user_info
 class ListUserInfo(Action):
      def exec(self, conn, user):

@@ -2,7 +2,7 @@ from .User import User
 
 from action.classroom_management.ManageClassroom import ManageClassroom
 from action.course_management.ManageCourse import ManageCourse
-from action.ListUserInfo import ListUserInfo
+from action.behavior_analysis.ListUserInfo import ListUserInfo
 from action.event.SearchEvent import SearchEvent
 from action.Behavior import Behavior
 
