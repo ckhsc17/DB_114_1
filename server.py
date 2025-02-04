@@ -1,3 +1,17 @@
+import sys
+import os
+import time
+sys.executable
+
+#echo $PATH
+
+# 添加 node_modules 目錄
+os.environ['PYTHONPATH'] = '/Users/bowen/Library/Python/3.9/lib/python/site-packages'
+os.environ['PYTHONPATH2'] = '/Users/bowen/opt/anaconda3/envs/pytorch-tutorial/bin/pip'
+sys.path.append(os.environ['PYTHONPATH'])
+sys.path.append(os.environ['PYTHONPATH2'])
+print(sys.path)
+
 import socket
 from threading import Thread
 

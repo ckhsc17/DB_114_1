@@ -6,8 +6,8 @@ from threading import Lock
 from pymongo import MongoClient
 from datetime import datetime
 
-DB_NAME = "I'M_IN"
-DB_USER = "postgres"
+DB_NAME = "db_114_1"
+DB_USER = "bowen"
 DB_HOST = "127.0.0.1"
 DB_PORT = 5432
 MONGO_URI = "mongodb://localhost:27017"
