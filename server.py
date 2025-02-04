@@ -1,3 +1,4 @@
+'''
 import sys
 import os
 import time
@@ -11,6 +12,7 @@ os.environ['PYTHONPATH2'] = '/Users/bowen/opt/anaconda3/envs/pytorch-tutorial/bi
 sys.path.append(os.environ['PYTHONPATH'])
 sys.path.append(os.environ['PYTHONPATH2'])
 print(sys.path)
+'''
 
 import socket
 from threading import Thread

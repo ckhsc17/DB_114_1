@@ -495,3 +495,12 @@ def recent_searched_room():
     
     room_count = {room: result.count(room) for room in set(result)}
     return room_count
+
+# 行為分析
+def get_behavior(behavior, period, user_id):
+    mongo = get_mongo_client()
+    query = mongo.activities.find()
+    result = []
+    for q in query:
+        result.append(q)
+    return result
