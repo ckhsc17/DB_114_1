@@ -55,8 +55,11 @@ def handle_connection(conn, client_addr):
                 if ret == -1:
                     break
 
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         print(f"Connection with {client_addr} close.")
+        
+        log_logout(client_addr)
         conn.close()
     finally:
         print(f"Connection with {client_addr} close.")

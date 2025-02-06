@@ -34,7 +34,7 @@ class LogIn(Action):
             conn.send(f'[EXIT]Connection close. Reason: Password incorrect.'.encode('utf-8'))
             return -1
         
-        log_login(userid)
+        log_login(userid, conn.getpeername()[1])
         
         if isAdmin:
             return Admin(userid, username, pwd, email)
