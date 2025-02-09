@@ -637,15 +637,6 @@ def get_hot_search_dates(days=30):
     
     return tabulate(result_list, headers=["Event Date", "Count"], tablefmt="github")
 
-'''
-def get_period_users():
-    print("Get Period Users")
-    db = get_mongo_client()
-    users = db.activities.find({"status": "login"}, {"user_id": 1, "_id": 0})
-
-    period_users = [(u["user_id"], fetch_user(u["user_id"])[0]) for u in users]
-    return tabulate(period_users, headers=["User ID", "Username"], tablefmt="github")
-'''
 def get_period_users(start_date = None, end_date = None, interval = "day"):
     """
     統計某個時間區間內，每天/每小時的登入人次
@@ -709,3 +700,28 @@ def get_period_users(start_date = None, end_date = None, interval = "day"):
         result_str += f"{time_key},{count}\n"
 
     return result_str
+
+def calculate_usage():
+    query = f"""
+        SELECT 
+            sep.classroom_id,
+            COUNT(p.event_id) / c.capacity_size AS usage_rate,  -- 計算使用率
+            se.status
+        FROM 
+            "STUDY_EVENT_PERIOD" sep
+        JOIN 
+            "STUDY_EVENT" se ON sep.event_id = se.event_id
+        JOIN 
+            "PARTICIPATION" p ON se.event_id = p.event_id
+        JOIN 
+            "CLASSROOM" c ON sep.classroom_id = c.classroom_id
+        GROUP BY 
+            sep.classroom_id, se.status, c.capacity_size
+        ORDER BY 
+            usage_rate DESC  -- 根據使用率排序，假設需要按使用率排序
+        LIMIT 10;  -- 只列出前10筆資料，沒有篩選條件時使用
+    """
+
+    cur.execute(query)
+
+    return print_table(cur)
