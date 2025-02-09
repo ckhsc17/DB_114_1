@@ -12,7 +12,7 @@ class Online(Action):
                         ]
 
     def exec(self, conn, user):
-        print("Manage Course")
+        print("Manage Online Users")
 
         
         msg = '[INPUT]What do you want to do?\n' + list_option(self.options) + '---> '

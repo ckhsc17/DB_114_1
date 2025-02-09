@@ -8,6 +8,6 @@ class AddClassroom(Action):
         floor_number = self.read_input(conn, "floor number")
         room_name = self.read_input(conn, "room name")
 
-        classroom_id = append_classroom(building_name, capacity_size, floor_number, room_name)
+        classroom_id = append_classroom(building_name, capacity_size, floor_number, room_name) #跟使用者要參數後，呼叫DB_utils的function
 
         conn.send(f'\nCreate new classroom successfully! New Classroom_id: {classroom_id}\n'.encode('utf-8'))

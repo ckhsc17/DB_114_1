@@ -5,9 +5,12 @@ from threading import Lock
 
 from pymongo import MongoClient
 from datetime import datetime, timedelta
+from collections import defaultdict
 
-DB_NAME = "I'M_IN"
-DB_USER = "postgres"
+#DB_NAME = "I'M_IN"
+#DB_USER = "postgres"
+DB_NAME = "db_114_1"
+DB_USER = "bowen"
 DB_HOST = "127.0.0.1"
 DB_PORT = 5432
 MONGO_URI = "mongodb://localhost:27017"
@@ -598,7 +601,7 @@ def get_online_users():
     db = get_mongo_client()
     users = db.online_users.find({"status": "online"}, {"user_id": 1, "_id": 0})
 
-    online_users = [(u["user_id"], fetch_user(u["user_id"])[0]) for u in users]
+    online_users = [(u["user_id"], fetch_user(u["user_id"])[0]) for u in users] # 取得使用者名稱
     return tabulate(online_users, headers=["User ID", "Username"], tablefmt="github")
 
 
@@ -633,3 +636,69 @@ def get_hot_search_dates(days=30):
     result_list = [(r["_id"], r["count"]) for r in result]
     
     return tabulate(result_list, headers=["Event Date", "Count"], tablefmt="github")
+
+'''
+def get_period_users():
+    print("Get Period Users")
+    db = get_mongo_client()
+    users = db.activities.find({"status": "login"}, {"user_id": 1, "_id": 0})
+
+    period_users = [(u["user_id"], fetch_user(u["user_id"])[0]) for u in users]
+    return tabulate(period_users, headers=["User ID", "Username"], tablefmt="github")
+'''
+def get_period_users(start_date = None, end_date = None, interval = "day"):
+    """
+    統計某個時間區間內，每天/每小時的登入人次
+    :param start_date: 開始日期 (格式: YYYY-MM-DD)，可為 None（預設為今天）
+    :param end_date: 結束日期 (格式: YYYY-MM-DD)，可為 None（預設為今天）
+    :param interval: "day" 表示按天統計, "hour" 表示按小時統計（預設為 "day"）
+    :return: 統計結果 (字典)
+    """
+    
+    # 若 `start_date` 和 `end_date` 為 None，則預設為今天
+    today = datetime.today().strftime("%Y-%m-%d")
+    start_date = start_date or today
+    end_date = end_date or today  # 預設結束日期也是今天
+    
+    print(f"Get Period Users from {start_date} to {end_date}")
+
+    db = get_mongo_client()
+    
+    # 轉換時間格式
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)  # 包含整天
+
+    # 查詢條件：篩選 event_type = "login" 且在指定時間範圍內
+    query = {
+        "event_type": "login",
+        "timestamp": {"$gte": start_dt, "$lt": end_dt}
+    }
+    
+    users = db.activities.find(query, {"user_id": 1, "timestamp": 1, "_id": 0})
+    
+    # 使用 defaultdict 統計登入人次
+    login_stats = defaultdict(int)
+
+    for user in users:
+        login_time = user["timestamp"]
+        
+        if interval == "day":
+            time_key = login_time.strftime("%Y-%m-%d")  # 按天統計
+        elif interval == "hour":
+            time_key = login_time.strftime("%Y-%m-%d %H:00")  # 按小時統計
+        else:
+            raise ValueError("interval 只能是 'day' 或 'hour'")
+        
+        login_stats[time_key] += 1
+
+    # 輸出統計結果（在server console上）
+    print("\n📊 登入人次統計結果：")
+    for time_key, count in sorted(login_stats.items()):
+        print(f"{time_key}: {count} 人登入")
+
+    # 格式化結果為字符串，這樣可以發送給客戶端
+    result_str = "\n📊 登入人次統計結果：\n"
+    for time_key, count in sorted(login_stats.items()):
+        result_str += f"{time_key}: {count} 人登入\n"
+
+    return result_str
