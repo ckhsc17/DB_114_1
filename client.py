@@ -1,6 +1,10 @@
 import socket
 from os.path import isfile, getsize
 
+import matplotlib.pyplot as plt
+from collections import defaultdict
+import matplotlib.dates as mdates
+from datetime import datetime
 
 conn_ip = "127.0.0.1"
 conn_port = 8800
@@ -8,6 +12,7 @@ conn_port = 8800
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP
 client_socket.connect((conn_ip, conn_port))
 
+client_socket.settimeout(30)  # 設定超時為 30 秒
 
 def receive_message(conn):
     # Keep reading until the delimiter is found
@@ -80,9 +85,54 @@ try:
                 break            
             client_socket.send(send_msg.encode('utf-8'))
         
+        
+        elif recv_msg.find("[PLOT]") != -1:
+            print(recv_msg.replace("[PLOT]", ''), end='')  # 顯示訊息內容
+            data = defaultdict(list)
 
-        else:
-            print(recv_msg, end='')
+            # 解析接收到的資料
+            for line in recv_msg.split('\n'):
+                line = line.strip()  # 去除首尾空白字符
+                #print(f"line: {line}")
+                if len(line) == 0:
+                    continue  # 跳過空行
+                # 確保這一行有兩個部分，避免格式錯誤
+                if ',' in line:
+                    key, value = line.split(',')
+                    try:
+                        data[key] = int(value)
+                    except ValueError:
+                        #print(f"警告: 無法將 '{value}' 轉換為數字")
+                        continue  # 如果轉換失敗，跳過這一行
+                else:
+                    pass
+            
+            print(data)
+
+            # 解析時間和對應的值
+            times = [datetime.strptime(key, '%Y-%m-%d %H:%M') for key in data.keys()]
+            values = list(data.values())
+
+            # 創建圖表
+            fig, ax = plt.subplots()
+
+            # 繪製時間對應的數值
+            ax.plot(times, values, label="Visitors")
+
+            # 設定日期格式
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H'))
+
+            # 自動旋轉 x 軸標籤，避免重疊
+            plt.xticks(rotation=45)
+
+            # 顯示圖例
+            ax.legend()
+
+            # 顯示圖表
+            plt.tight_layout()  # 防止標籤被裁剪
+            plt.show()
+    else:
+        print(recv_msg, end='')
         
 finally:
     print("Connection close.")

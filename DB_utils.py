@@ -696,9 +696,16 @@ def get_period_users(start_date = None, end_date = None, interval = "day"):
     for time_key, count in sorted(login_stats.items()):
         print(f"{time_key}: {count} 人登入")
 
+    '''
     # 格式化結果為字符串，這樣可以發送給客戶端
     result_str = "\n📊 登入人次統計結果：\n"
     for time_key, count in sorted(login_stats.items()):
         result_str += f"{time_key}: {count} 人登入\n"
+    '''
+
+    # 格式化結果為簡單的 key,value 格式，方便前端繪圖
+    result_str = ""
+    for time_key, count in sorted(login_stats.items()):
+        result_str += f"{time_key},{count}\n"
 
     return result_str
