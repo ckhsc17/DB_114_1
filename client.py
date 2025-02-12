@@ -52,7 +52,7 @@ try:
         if recv_msg.find("[CSV]") != -1:
             print(recv_msg.replace("[CSV]", '').replace("[INPUT]", ''), end='')
             
-            filename = input().strip()
+            filename = input().strip() 
             if not isfile(filename) or filename.find(".csv") == -1:
                 print(f'File \'{filename}\' is not found or is not a csv file.')
                 client_socket.send("[NOTFOUND]".encode('utf-8'))
@@ -131,8 +131,9 @@ try:
             # 顯示圖表
             plt.tight_layout()  # 防止標籤被裁剪
             plt.show()
-    else:
-        print(recv_msg, end='')
+        
+        else:
+            print(recv_msg, end='')
         
 finally:
     print("Connection close.")
