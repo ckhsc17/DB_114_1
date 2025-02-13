@@ -21,13 +21,17 @@ def get_selection(conn, options):
     else:
         option_idx = [x for x in range(1, len(options)+1)]
     recv_msg = conn.recv(100).decode("utf-8")
-    while int(recv_msg) not in option_idx:
+    
+    while True:
+        if recv_msg.isdigit():
+            num = int(recv_msg)
+            if num in option_idx:
+                break  # 輸入正確
         msg = "[INPUT]Wrong input, please select "
         for idx in option_idx:
-            msg = msg + f'[{idx}] '
+            msg += f'[{idx}] '
         msg += ': '
         conn.send(msg.encode('utf-8'))
-        
         recv_msg = conn.recv(100).decode("utf-8")
     print("Select option:", recv_msg)
     

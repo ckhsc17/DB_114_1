@@ -38,17 +38,21 @@ def receive_message(conn):
         # client_socket.close()
 
 try: 
-    while True: # Keep receiving and sending message with server
-        
+    while True: 
+        # Keep receiving and sending message with server. 
+        # Different types of message have different tags, such as [EXIT], [INPUT], [CSV], [PLOT]
+        # If the message does not have any tag, it will be displayed directly.
+    
         recv_msg = receive_message(client_socket)
-        # print(f'recv_msg: {recv_msg}')
-        # client_socket.recv(10000).decode('utf-8')
+        
         if not recv_msg:
             print("Connection closed by the server.")
             break
+        
         if recv_msg.find("[EXIT]") != -1:
             print(recv_msg.replace("[EXIT]", ''), end='')
             break
+        
         if recv_msg.find("[CSV]") != -1:
             print(recv_msg.replace("[CSV]", '').replace("[INPUT]", ''), end='')
             
@@ -56,8 +60,6 @@ try:
             if not isfile(filename) or filename.find(".csv") == -1:
                 print(f'File \'{filename}\' is not found or is not a csv file.')
                 client_socket.send("[NOTFOUND]".encode('utf-8'))
-            
-
             
             file_size = getsize(filename)
             # print(f'File \'{filename}\' found, file_size = {file_size}')
@@ -72,7 +74,6 @@ try:
                     client_socket.send(chunk)
             print(f'File \'{filename}\' sent successfully.')
         
-        
         elif recv_msg.find("[INPUT]") != -1:
             print(recv_msg.replace("[INPUT]", ''), end='')
 
@@ -84,7 +85,6 @@ try:
             if send_msg == "exit":
                 break            
             client_socket.send(send_msg.encode('utf-8'))
-        
         
         elif recv_msg.find("[PLOT]") != -1:
             print(recv_msg.replace("[PLOT]", ''), end='')  # 顯示訊息內容
@@ -133,6 +133,7 @@ try:
             plt.show()
         
         else:
+            # message without any tag
             print(recv_msg, end='')
         
 finally:
