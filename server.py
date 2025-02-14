@@ -68,6 +68,9 @@ def handle_connection(conn, client_addr):
 
 if __name__ == '__main__':
 
+    mongo = get_mongo_client()
+    db = db_connect()
+
     bind_ip = "127.0.0.1"
     bind_port = 8800
 
@@ -85,4 +88,5 @@ if __name__ == '__main__':
             thread = Thread(target=handle_connection, args=(conn, client_addr,))
             thread.start()
     finally:
+        db.close()
         server_socket.close()
