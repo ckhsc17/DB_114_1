@@ -24,7 +24,6 @@ from action.Exit import Exit
 from DB_utils import *
 from utils import *
 
-
 welcome_action = [LogIn("Log-in"), SignUp("Sign-up"), Exit("Leave System")]
 
 

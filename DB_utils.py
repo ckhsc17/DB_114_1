@@ -756,3 +756,52 @@ def get_top_popular_events():
     cur.execute(query)
     result = cur.fetchall()
     return result
+
+
+def get_classroom_utilization(start_date, end_date):
+    """
+    從 study_event_period 表中統計每間教室的租借與閒置時間比例
+
+    回傳結果欄位：
+      - classroom_id：教室編號
+      - total_reserved：該教室累計租借的小時數
+      - total_possible：總可租用的小時數 (distinct event_date * 24)
+      - reserved_ratio：租借比例 = total_reserved / total_possible
+      - idle_ratio：閒置比例 = (total_possible - total_reserved) / total_possible
+    """
+
+    query = """
+        SELECT
+            classroom_id,
+            SUM(reserved_count) AS total_reserved,
+            ((to_date(%s, 'YYYYMMDD') - to_date(%s, 'YYYYMMDD') + 1) * 24) AS total_possible,
+            ROUND(SUM(reserved_count) * 1.0 / ((to_date(%s, 'YYYYMMDD') - to_date(%s, 'YYYYMMDD') + 1) * 24), 2) AS reserved_ratio,
+            ROUND((((to_date(%s, 'YYYYMMDD') - to_date(%s, 'YYYYMMDD') + 1) * 24) - SUM(reserved_count)) * 1.0 / ((to_date(%s, 'YYYYMMDD') - to_date(%s, 'YYYYMMDD') + 1) * 24), 2) AS idle_ratio
+        FROM (
+            SELECT 
+                classroom_id, 
+                COUNT(*) AS reserved_count
+            FROM "STUDY_EVENT_PERIOD"
+            WHERE event_date BETWEEN %s AND %s
+            GROUP BY classroom_id
+        ) t
+        GROUP BY classroom_id
+        ORDER BY idle_ratio ASC;
+    """
+    # 依照 SQL query 中 %s 的順序：
+    # total_possible:        (to_date(end_date) - to_date(start_date) + 1) * 24  → 2 參數 (end_date, start_date)
+    # reserved_ratio:        同上 → 2 參數 (end_date, start_date)
+    # idle_ratio:            numerator & denominator: 同上 → 4 參數 (end_date, start_date, end_date, start_date)
+    # WHERE 子句:           event_date BETWEEN %s AND %s → 2 參數 (start_date, end_date)
+    params = (
+        end_date, start_date,    # total_possible
+        end_date, start_date,    # reserved_ratio
+        end_date, start_date,    # idle_ratio numerator
+        end_date, start_date,    # idle_ratio denominator
+        start_date, end_date     # WHERE 子句
+    )
+
+    cur.execute(query, params)
+
+    result = cur.fetchall()
+    return result
