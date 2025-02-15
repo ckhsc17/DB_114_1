@@ -600,6 +600,7 @@ def get_online_users():
     print("Get Online Users")
     db = get_mongo_client()
     users = db.online_users.find({"status": "online"}, {"user_id": 1, "_id": 0})
+    print(users)
 
     online_users = [(u["user_id"], fetch_user(u["user_id"])[0]) for u in users] # 取得使用者名稱
     return tabulate(online_users, headers=["User ID", "Username"], tablefmt="github")
@@ -718,10 +719,40 @@ def calculate_usage():
         GROUP BY 
             sep.classroom_id, se.status, c.capacity_size
         ORDER BY 
-            usage_rate DESC  -- 根據使用率排序，假設需要按使用率排序
+            usage_rate DESC,
+            participant_count DESC
         LIMIT 10;  -- 只列出前10筆資料，沒有篩選條件時使用
     """
 
     cur.execute(query)
 
     return print_table(cur)
+
+def get_top_popular_events():
+    """
+    取得完成率最高的 10 個活動。
+    完成率 = 參與人數 / user_max，利用 LEFT JOIN 確保即使活動尚無參與記錄也會被列出。
+    """
+    # 請依需求調整資料庫檔案或連線參數
+    
+    query = """
+        SELECT
+            se.event_id,
+            COUNT(p.user_id) AS participant_count,
+            se.user_max,
+            ROUND(COUNT(p.user_id) * 1.0 / se.user_max, 2) AS participation_rate
+        FROM
+            "STUDY_EVENT" se
+        LEFT JOIN
+            "PARTICIPATION" p
+            ON se.event_id = p.event_id
+        GROUP BY
+            se.event_id, se.user_max
+        ORDER BY
+            participation_rate DESC,
+            participant_count DESC
+        LIMIT 10;
+    """
+    cur.execute(query)
+    result = cur.fetchall()
+    return result

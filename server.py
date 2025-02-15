@@ -57,12 +57,10 @@ def handle_connection(conn, client_addr):
 
     except Exception as e:
         print(f"Error: {e}")
-        print(f"Connection with {client_addr} close.")
         
-        log_logout(client_addr)
-        conn.close()
     finally:
         print(f"Connection with {client_addr} close.")
+        log_logout(client_addr)
         conn.close()
 
 
@@ -75,6 +73,7 @@ if __name__ == '__main__':
     bind_port = 8800
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((bind_ip, bind_port))
     server_socket.listen(5)
 
