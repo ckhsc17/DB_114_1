@@ -106,6 +106,50 @@ python .\client.py
 
   
 
+## NoSQL 擴充應用（MongoDB）
+
+為補足使用者即時行為追蹤與日後的行為分析需求，系統整合 MongoDB 儲存非結構化紀錄資料。
+
+目前設計兩個集合（Collections）：
+
+- `activities`：記錄使用者所有操作事件（如登入、查詢教室）
+- `online_users`：記錄目前在線使用者的狀態、登入時間與來源 IP/Port
+
+### 範例資料：`activities`
+
+```json
+{
+  "event_type": "query_reserved_room",
+  "user_id": "12345",
+  "details": {
+    "event_date": "2025-02-06"
+  },
+  "timestamp": "2025-02-06T17:31:20.408Z"
+}
+```
+
+### 範例資料：`online_users`
+
+```json
+{
+  "user_id": "12345",
+  "port": 64740,
+  "addr": "127.0.0.1",
+  "status": "online",
+  "login_time": "2025-02-06T09:06:40.679Z",
+  "last_active_time": "2025-02-06T09:06:40.679Z"
+}
+```
+
+### 實作應用：
+
+- 系統使用 `log_action()` 將查詢、登入、登出等行為存入 `activities`
+- 管理員可透過聚合查詢（如 `$group`, `$match`, `$dateToString`）統計：
+  - 最常被查詢的日期
+  - 使用者行為異常（例如過度查詢、連續登入失敗等）
+- 可視化：使用 `matplotlib` 繪製查詢熱點趨勢圖
+
+
 ## 程式說明
 
 1. **`./server.py`**
@@ -144,4 +188,3 @@ python .\client.py
 ## 參考資料
 
 - README 說明文件及報告內容來自 **113-1資料庫管理**
-
