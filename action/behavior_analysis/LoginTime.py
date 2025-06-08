@@ -5,8 +5,8 @@ class LoginTime(Action):
      def exec(self, conn, user): # user is not needed
         print("Login Time Analysis hi hi bowen") # 給server看的
 
-        start_date = self.read_input(conn, "start_date that you want to filter")
-        end_date = self.read_input(conn, "end_date that you want to filter")
+        start_date = self.read_input(conn, "start_date that you want to filter (格式: YYYY-MM-DD)")
+        end_date = self.read_input(conn, "end_date that you want to filter (格式: YYYY-MM-DD)")
         interval = self.read_input(conn, "interval that you want to filter (day, hour)")
 
         table = get_period_users(start_date, end_date, interval) # get login stats

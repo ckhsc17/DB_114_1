@@ -110,7 +110,7 @@ try:
             print(data)
 
             # 解析時間和對應的值
-            times = [datetime.strptime(key, '%Y-%m-%d %H:%M') for key in data.keys()]
+            times = [datetime.strptime(key, '%Y-%m-%d') for key in data.keys()]
             values = list(data.values())
 
             # 創建圖表
