@@ -706,6 +706,7 @@ def calculate_usage():
     query = f"""
         SELECT 
             sep.classroom_id,
+            COUNT(p.user_id) AS participant_count,
             COUNT(p.event_id) / c.capacity_size AS usage_rate,  -- 計算使用率
             se.status
         FROM 
